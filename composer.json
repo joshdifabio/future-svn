@@ -1,5 +1,5 @@
 {
-    "name": "joshdifabio/svn-client",
+    "name": "joshdifabio/future-svn",
     "description": "SVN client for PHP using futures and promises",
     "keywords": ["svn", "subversion", "client", "promise", "react"],
     "license": "MIT",
@@ -20,12 +20,12 @@
     },
     "autoload": {
         "psr-4": {
-            "SubversionClient\\": "src"
+            "FutureSVN\\": "src"
        }
     },
     "autoload-dev": {
         "psr-4": {
-            "SubversionClient\\": "tests"
+            "FutureSVN\\": "tests"
         }
     }
 }
