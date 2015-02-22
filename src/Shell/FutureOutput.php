@@ -37,7 +37,7 @@ class FutureOutput
     /**
      * @return string
      */
-    public function getContents()
+    public function getStreamContents()
     {
         $this->wait();
         
@@ -51,7 +51,7 @@ class FutureOutput
     {
         $this->wait();
         
-        return $this->futureResult->getStream(1)->getResource();
+        return $this->futureResult->getStream(1);
     }
     
     /**

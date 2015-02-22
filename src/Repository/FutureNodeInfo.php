@@ -7,38 +7,15 @@ use React\Promise\PromiseInterface;
 /**
  * @author Josh Di Fabio <joshdifabio@gmail.com>
  */
-class FutureNodeInfo extends \ArrayAccess
+class FutureNodeInfo
 {
     private $futureOutput;
     private $promise;
+    private $data;
     
     public function __construct(FutureOutput $futureOutput)
     {
         $this->futureOutput = $futureOutput;
-    }
-    
-    /**
-     * @return \DateTime
-     */
-    public function getLastChangeTime()
-    {
-        $this->wait();
-    }
-    
-    /**
-     * @return int
-     */
-    public function getLastChangeRevision()
-    {
-        $this->wait();
-    }
-    
-    /**
-     * @return string
-     */
-    public function getLastChangeAuthor()
-    {
-        $this->wait();
     }
     
     /**
@@ -48,6 +25,10 @@ class FutureNodeInfo extends \ArrayAccess
     public function wait($timeout = null)
     {
         $this->futureOutput->wait($timeout);
+        
+        if (is_null($this->data)) {
+//            $this->data = 
+        }
         
         return $this;
     }

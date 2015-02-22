@@ -96,7 +96,7 @@ abstract class Node
      */
     public function getInfo()
     {
-        $output = $this->repo->execute('info', $this->getUrl(true));
+        $output = $this->repo->execute('info', $this->getUrl(true), array('--xml' => true));
         
         return new FutureNodeInfo($output);
     }

@@ -27,8 +27,8 @@ class FutureNodeCollection implements \IteratorAggregate
         if (is_null($this->nodes)) {
             $nodes = array();
 
-            $output = $this->futureOutput->getContents();
-            $listsXml = new \SimpleXMLIterator($output);
+            $listsXmlString = $this->futureOutput->getStreamContents();
+            $listsXml = new \SimpleXMLIterator($listsXmlString);
             foreach ($listsXml as $listXml) {
                 $listPath = $this->getPath((string)$listXml->attributes()->path);
                 foreach ($listXml as $listEntryXml) {

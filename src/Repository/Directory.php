@@ -36,6 +36,7 @@ class Directory extends Node
     {
         $output = $this->repo->execute('list', $this->getUrl(true), array(
             '--depth' => $recursive ? 'infinity' : 'immediates',
+            '--xml' => true,
         ));
         
         return new FutureNodeCollection($this->repo, $output);
@@ -48,6 +49,7 @@ class Directory extends Node
     {
         $output = $this->repo->execute('list', $this->getUrl(true), array(
             '--depth' => 'files',
+            '--xml' => true,
         ));
         
         return new FutureNodeCollection($this->repo, $output);

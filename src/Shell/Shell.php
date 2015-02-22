@@ -24,6 +24,8 @@ class Shell
     
     public function execute($subcommand, $args = array(), array $options = array())
     {
+        $options['--non-interactive'] = true;
+        
         $process = $this->futureShell->startProcess(
             $this->assembleCommand($subcommand, $args, $options),
             $this->descriptorSpec

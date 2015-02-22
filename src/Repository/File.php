@@ -1,7 +1,7 @@
 <?php
 namespace FutureSVN\Repository;
 
-use FutureProcess\FutureStream;
+use FutureSVN\Shell\FutureOutput;
 
 /**
  * @author Josh Di Fabio <joshdifabio@gmail.com>
@@ -25,11 +25,10 @@ class File extends Node
     }
     
     /**
-     * @return FutureStream
+     * @return FutureOutput
      */
     public function getContents()
     {
-        return $this->repo->execute('cat', $this->getUrl(true))
-            ->getStream(1);
+        return $this->repo->execute('cat', $this->getUrl(true));
     }
 }

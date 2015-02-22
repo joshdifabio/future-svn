@@ -17,10 +17,7 @@ class Repository
     {
         $this->shell = $shell;
         $this->url = rtrim($url, '/');
-        $this->options = new \ArrayObject(array(
-            '--non-interactive' => true,
-            '--xml' => true,
-        ));
+        $this->options = new \ArrayObject;
     }
     
     /**
