@@ -2,6 +2,9 @@
 namespace FutureSVN\Repository;
 
 use FutureSVN\Shell\FutureOutput;
+use FutureSVN\FutureCommit;
+use React\Promise\FulfilledPromise;
+use FutureSVN\XMLParser;
 
 /**
  * @author Josh Di Fabio <joshdifabio@gmail.com>
@@ -33,11 +36,13 @@ class FutureNodeCollection implements \IteratorAggregate
                 $listPath = $this->getPath((string)$listXml->attributes()->path);
                 foreach ($listXml as $listEntryXml) {
                     $nodePath = $listPath . '/' . $listEntryXml->name;
-                    $revision = (int)(string)$listEntryXml->commit->attributes()->revision;
+                    $commit = new FutureCommit(new FulfilledPromise(
+                        XMLParser::parseCommit($listEntryXml->commit)
+                    ));
                     if (!strcasecmp('dir', $listEntryXml->attributes()->kind)) {
-                        $nodes[] = $this->repo->getDirectory($nodePath, $revision);
+                        $nodes[] = new Directory($this->repo, $nodePath, $commit->getRevision(), $commit);
                     } else {
-                        $nodes[] = $this->repo->getFile($nodePath, $revision);
+                        $nodes[] = new File($this->repo, $nodePath, $commit->getRevision(), $commit);
                     }
                 }
             }

@@ -1,7 +1,9 @@
 <?php
 namespace FutureSVN\Repository;
 
-use FutureSVN\Commit;
+use FutureSVN\FutureCommit;
+use FutureSVN\Shell\FutureOutput;
+use FutureSVN\XMLParser;
 
 /**
  * @author Josh Di Fabio <joshdifabio@gmail.com>
@@ -11,12 +13,18 @@ abstract class Node
     protected $repo;
     protected $path;
     protected $rev;
+    protected $lastCommit;
     
-    public function __construct(Repository $repository, $path = null, $revision = null)
-    {
+    public function __construct(
+        Repository $repository,
+        $path = null,
+        $revision = null,
+        FutureCommit $lastCommit = null
+    ) {
         $this->repo = $repository;
         $this->path = '/' . trim((string)$path, '/');
         $this->rev = $revision;
+        $this->lastCommit = $lastCommit;
     }
     
     /**
@@ -56,7 +64,7 @@ abstract class Node
      */
     public function getPath($withRevision = false)
     {
-        return $this->path . ($withRevision && $this->rev ? '@' . $this->rev : '');
+        return $this->path . ($withRevision && $this->rev ? '?p=' . $this->rev : '');
     }
     
     /**
@@ -80,7 +88,7 @@ abstract class Node
      */
     public function atHead()
     {
-        return new static($this->repo, $this->path);
+        return $this->create(null);
     }
     
     /**
@@ -88,17 +96,7 @@ abstract class Node
      */
     public function atRevision($revision)
     {
-        return new static($this->repo, $this->path, $revision);
-    }
-    
-    /**
-     * @return FutureNodeInfo
-     */
-    public function getInfo()
-    {
-        $output = $this->repo->execute('info', $this->getUrl(true), array('--xml' => true));
-        
-        return new FutureNodeInfo($output);
+        return $this->create($revision);
     }
     
     /**
@@ -140,8 +138,52 @@ abstract class Node
         return new Commit($output);
     }
     
+    /**
+     * @return FutureCommit
+     */
+    public function getLastCommit()
+    {
+        if (!$this->rev || !$this->lastCommit) {
+            $this->lastCommit = $this->doGetLastCommit();
+        }
+        
+        return $this->lastCommit;
+    }
+    
     protected function absPath($path)
     {
         return '/' === $path{0} ? $path : $this->getPath() . '/' . $path;
+    }
+    
+    private function doGetLastCommit()
+    {
+        $output = $this->repo->execute('info', $this->getUrl(true), array('--xml' => true));
+        
+        return new FutureCommit(
+            $output->then(function (FutureOutput $output) {
+                if ($infoXml = $output->getStreamContents()) {
+                    return XMLParser::parseInfoForCommit(new \SimpleXMLElement($infoXml));
+                }
+            }),
+            function ($timeout = null) use ($output) {
+                $output->wait($timeout);
+                if ($infoXml = $output->getStreamContents()) {
+                    return XMLParser::parseInfoForCommit(new \SimpleXMLElement($infoXml));
+                }
+            }
+        );
+    }
+    
+    private function create($rev)
+    {
+        if ($this->lastCommit && (!$rev || $rev == $this->lastCommit->getRevision())) {
+            $lastCommit = $this->lastCommit;
+        } else {
+            $lastCommit = null;
+        }
+        
+        return $this->isDirectory() ? 
+            new Directory($this->repo, $this->path, $rev, $this->lastCommit) :
+            new File($this->repo, $this->path, $rev, $this->lastCommit);
     }
 }

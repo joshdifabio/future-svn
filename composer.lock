@@ -11,14 +11,8 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/joshdifabio/future-process.git",
-                "reference": "44b1d8cb3399c722f810b87e6462fab18515153c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/joshdifabio/future-process/zipball/44b1d8cb3399c722f810b87e6462fab18515153c",
-                "reference": "44b1d8cb3399c722f810b87e6462fab18515153c",
-                "shasum": ""
+                "url": "/vagrant/public/future-process",
+                "reference": "70bf8620dbcc30fd1dc1c59111185ce482b38bd8"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -35,7 +29,11 @@
                     "FutureProcess\\": "src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "FutureProcess\\": "tests"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -52,7 +50,7 @@
                 "promise",
                 "react"
             ],
-            "time": "2015-02-16 23:35:33"
+            "time": "2015-02-20 10:11:34"
         },
         {
             "name": "react/promise",
