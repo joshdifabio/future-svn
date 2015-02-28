@@ -32,7 +32,7 @@ class Directory extends Node
     /**
      * @return FutureNodeCollection
      */
-    public function getNodes($recursive = false)
+    public function getFilesAndDirectories($recursive = false)
     {
         $output = $this->repo->execute('list', $this->getUrl(true), array(
             '--depth' => $recursive ? 'infinity' : 'immediates',
@@ -45,14 +45,27 @@ class Directory extends Node
     /**
      * @return FutureNodeCollection
      */
-    public function getFiles()
+    public function getDirectories($recursive = false)
     {
         $output = $this->repo->execute('list', $this->getUrl(true), array(
-            '--depth' => 'files',
+            '--depth' => $recursive ? 'infinity' : 'immediates',
             '--xml' => true,
         ));
         
-        return new FutureNodeCollection($this->repo, $output);
+        return new FutureNodeCollection($this->repo, $output, FutureNodeCollection::DIRS_ONLY);
+    }
+    
+    /**
+     * @return FutureNodeCollection
+     */
+    public function getFiles($recursive = false)
+    {
+        $output = $this->repo->execute('list', $this->getUrl(true), array(
+            '--depth' => $recursive ? 'infinity' : 'files',
+            '--xml' => true,
+        ));
+        
+        return new FutureNodeCollection($this->repo, $output, FutureNodeCollection::FILES_ONLY);
     }
     
     /**

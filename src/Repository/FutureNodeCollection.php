@@ -11,15 +11,23 @@ use FutureSVN\XMLParser;
  */
 class FutureNodeCollection implements \IteratorAggregate
 {
+    const DIRS_ONLY = 'dir';
+    const FILES_ONLY = 'file';
+    
     private $repo;
     private $futureOutput;
     private $promise;
     private $nodes;
+    private $typeFilter;
     
-    public function __construct(Repository $repository, FutureOutput $futureOutput)
-    {
+    public function __construct(
+        Repository $repository,
+        FutureOutput $futureOutput,
+        $typeFilter = null
+    ) {
         $this->repo = $repository;
         $this->futureOutput = $futureOutput;
+        $this->typeFilter = $typeFilter;
     }
     
     /**
@@ -35,15 +43,15 @@ class FutureNodeCollection implements \IteratorAggregate
             foreach ($listsXml as $listXml) {
                 $listPath = $this->getPath((string)$listXml->attributes()->path);
                 foreach ($listXml as $listEntryXml) {
-                    $nodePath = $listPath . '/' . $listEntryXml->name;
-                    $commit = new FutureCommit(new FulfilledPromise(
-                        XMLParser::parseCommit($listEntryXml->commit)
-                    ));
-                    if (!strcasecmp('dir', $listEntryXml->attributes()->kind)) {
-                        $nodes[] = new Directory($this->repo, $nodePath, $commit->getRevision(), $commit);
-                    } else {
-                        $nodes[] = new File($this->repo, $nodePath, $commit->getRevision(), $commit);
+                    if ('./' === $listEntryXml->name) {
+                        continue;
                     }
+                    
+                    if ($this->typeFilter && $this->typeFilter !== (string)$listEntryXml->attributes()->kind) {
+                        continue;
+                    }
+                    
+                    $nodes[] = $this->createNode($listPath, $listEntryXml);
                 }
             }
             
@@ -82,5 +90,22 @@ class FutureNodeCollection implements \IteratorAggregate
         $repoUrl = rtrim($this->repo->getUrl(), '/');
         
         return trim(substr($url, strlen($repoUrl)), '/');
+    }
+    
+    private function createNode($listPath, $listEntryXml)
+    {
+        $nodePath = $listPath . '/' . $listEntryXml->name;
+        
+        $commit = new FutureCommit(new FulfilledPromise(
+            XMLParser::parseCommit($listEntryXml->commit)
+        ));
+        
+        if (!strcasecmp('dir', $listEntryXml->attributes()->kind)) {
+            $node = new Directory($this->repo, $nodePath, $commit->getRevision(), $commit);
+        } else {
+            $node = new File($this->repo, $nodePath, $commit->getRevision(), $commit);
+        }
+        
+        return $node;
     }
 }

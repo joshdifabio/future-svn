@@ -26,15 +26,13 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $url = 'http://svn.apache.org/repos/asf/spamassassin/';
         $repository = $this->repositoryFactory->createRepository($url);
         
-        $nodes = $repository->getDirectory('branches')->getNodes();
-        foreach ($nodes as $node) {
-            if ($node->isDirectory()) {
-                $lastCommit = $node->getLastCommit();
-                $rev = $lastCommit->getRevision();
-                $author = $lastCommit->getAuthor();
-                $time = $lastCommit->getDate()->format(\DateTime::RFC1123);
-                echo $node->getUrl() . " r$rev by $author at $time\n";
-            }
+        $filesAndDirs = $repository->getDirectory('trunk')->getDirectories();
+        foreach ($filesAndDirs as $i => $fileOrDir) {
+            $lastCommit = $fileOrDir->getLastCommit();
+            $rev = $lastCommit->getRevision();
+            $author = $lastCommit->getAuthor();
+            $time = $lastCommit->getDate()->format(\DateTime::RFC1123);
+            echo "$i: {$fileOrDir->getUrl()} r$rev by $author at $time\n";
         }
     }
     

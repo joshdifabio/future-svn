@@ -10,6 +10,9 @@ use FutureSVN\XMLParser;
  */
 abstract class Node
 {
+    const FILE = 'file';
+    const DIRECTORY = 'dir';
+    
     protected $repo;
     protected $path;
     protected $rev;
